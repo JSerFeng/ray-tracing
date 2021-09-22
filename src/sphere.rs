@@ -31,9 +31,9 @@ impl Hittable for Sphere {
 		// let b = 2.0 * dot(B, A_C);
 		// let c = dot(A_C, A_C) - r * r;
 		// more efficient is as following
-		let a = ray.direction.len_squre();
+		let a = ray.direction.len_square();
 		let half_b = dot(oc, &ray.direction);
-		let c = oc.len_squre() - r * r;
+		let c = oc.len_square() - r * r;
 
 		let discriminant = half_b * half_b - a * c;
 		if discriminant < 0.0 {

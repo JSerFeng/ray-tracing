@@ -50,7 +50,7 @@ fn ray_color(
 	rec: &mut hittable::HitRecord,
 	hittable_obj: &dyn hittable::Hittable,
 ) -> vec3::Vec3 {
-	if hittable_obj.hit(&ray, std::f64::MIN, std::f64::MAX, rec) {
+	if hittable_obj.hit(&ray, 0.0, std::f64::MAX, rec) {
 		return 0.5 * &(&rec.normal + 1.0);
 	}
 	let t = 0.5 * (ray.direction.unit_vector().y() + 1.0);

@@ -32,10 +32,10 @@ impl Vec3 {
 	}
 
 	pub fn len(&self) -> f64 {
-		self.len_squre().sqrt()
+		self.len_square().sqrt()
 	}
 
-	pub fn len_squre(&self) -> f64 {
+	pub fn len_square(&self) -> f64 {
 		self.value[0] * self.value[0] + self.value[1] * self.value[1] + self.value[2] * self.value[2]
 	}
 
