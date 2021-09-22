@@ -1,4 +1,5 @@
 use super::vec3;
+extern crate rand;
 
 pub fn to_rgb_str(data: &Vec<u32>, w: u32, h: u32) -> String {
 	let len = data.len();
@@ -31,4 +32,13 @@ pub fn interp(amount: f64, l: &vec3::Vec3, r: &vec3::Vec3) -> vec3::Vec3 {
 	let l_calc = l * amount;
 	let r_calc = r * (1.0 - amount);
 	return &l_calc + &r_calc;
+}
+
+pub fn random(l: f64, r: f64) -> f64 {
+	let v = rand::random::<f64>();
+	v * (r - l) + l
+}
+
+pub fn random_num<T: rand::Rand>() -> T {
+	rand::random::<T>()
 }

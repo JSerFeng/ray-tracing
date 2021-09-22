@@ -1,3 +1,4 @@
+use super::utils;
 use std::ops;
 
 pub struct Vec3 {
@@ -11,6 +12,24 @@ impl Vec3 {
 
 	pub fn from(val: f64) -> Vec3 {
 		Vec3::new(val, val, val)
+	}
+
+	pub fn rand(l: f64, r: f64) -> Vec3 {
+		Vec3::new(
+			utils::random(l, r),
+			utils::random(l, r),
+			utils::random(l, r),
+		)
+	}
+
+	pub fn rand_unit_vec() -> Vec3 {
+		loop {
+			let v = Vec3::rand(-1.0, 1.0);
+			if v.len_square() < 1.0 {
+				return v;
+			}
+			continue;
+		}
 	}
 
 	pub fn copy(v: &Vec3) -> Vec3 {
