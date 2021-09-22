@@ -13,7 +13,11 @@ fn main() {
 	const W: f64 = RATIO * H;
 
 	let camera = camera::new(RATIO, 2.0);
-	let sphere = sphere::Sphere::new(vec3::Vec3::new(0.0, 0.0, -1.0), 0.5);
+
+	let sphere_small = sphere::Sphere::new(vec3::Vec3::new(0.0, 0.0, -1.0), 0.5);
+	let sphere_big = sphere::Sphere::new(vec3::Vec3::new(0.0, -100.5, -1.0), 100.0);
+	let sphere_list = sphere::SphereList::new(vec![&sphere_small, &sphere_big]);
+
 	let mut rec = hittable::HitRecord::new();
 	let mut data: Vec<u32> = Vec::new();
 
@@ -26,7 +30,7 @@ fn main() {
 
 			let ray = ray::new(vec3::Vec3::new(0.0, 0.0, 0.0), vec3::Vec3::new(x, y, -1.0));
 
-			let color = ray_color(&ray, &mut rec, &sphere);
+			let color = ray_color(&ray, &mut rec, &sphere_list);
 			data.push((color.x() * 255.0) as u32);
 			data.push((color.y() * 255.0) as u32);
 			data.push((color.z() * 255.0) as u32);
@@ -47,7 +51,7 @@ fn ray_color(
 	hittable_obj: &dyn hittable::Hittable,
 ) -> vec3::Vec3 {
 	if hittable_obj.hit(&ray, std::f64::MIN, std::f64::MAX, rec) {
-		return vec3::Vec3::copy(&rec.color);
+		return 0.5 * &(&rec.normal + 1.0);
 	}
 	let t = 0.5 * (ray.direction.unit_vector().y() + 1.0);
 	let color = utils::interp(
