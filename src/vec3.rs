@@ -1,9 +1,17 @@
 use super::utils;
 use std::ops;
 
+#[macro_export]
+macro_rules! new_vec3 {
+	() => {Vec3::new(0.0, 0.0, 0.0)};
+	($ele: expr) => {Vec3::new($ele, $ele, $ele)};
+	($ele1: expr, $ele2: expr, $ele3: expr) => {Vec3::new($ele1, $ele2, $ele3)};
+}
+
 pub struct Vec3 {
 	value: [f64; 3],
 }
+
 
 impl Vec3 {
 	pub fn new(x: f64, y: f64, z: f64) -> Vec3 {

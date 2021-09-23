@@ -55,7 +55,7 @@ fn ray_color(ray: &ray::Ray, hittable_obj: &dyn hittable::Hittable, depth: u32) 
 		return vec3::Vec3::zero();
 	}
 	let rec = &mut hittable::HitRecord::new();
-	if hittable_obj.hit(&ray, 0.0, std::f64::MAX, rec) {
+	if hittable_obj.hit(&ray, 0.01, std::f64::MAX, rec) {
 		//随机模拟光线的漫反射
 		let target = &(&rec.p + &rec.normal) + &vec3::Vec3::rand_unit_vec();
 		let next_ray = ray::Ray::new(
