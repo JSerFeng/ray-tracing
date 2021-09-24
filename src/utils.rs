@@ -69,3 +69,9 @@ pub fn random_in_unit_sphere() -> vec3::Vec3 {
 pub fn near_zero(v: &vec3::Vec3) -> bool {
 	return v.x() < 1e-8 && v.y() < 1e-8 && v.z() < 1e-8;
 }
+
+pub const PI: f64 = 3.14159265359;
+
+pub fn deg_to_rad(deg: f64) -> f64 {
+	deg / 180.0 * PI
+}

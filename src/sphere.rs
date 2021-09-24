@@ -44,8 +44,7 @@ impl<'a> Hittable for Sphere<'a> {
 		let attachment = ray.at(root);
 
 		rec.t = root;
-		rec.normal = (&attachment - &self.center).unit_vector();
-		rec.set_front_face(ray, &(&attachment - &self.center).unit_vector());
+		rec.set_front_face(ray, &(&(&attachment - &self.center) / r));
 		rec.p = attachment;
 
 		let scatted = self.materia.scatter(ray, rec);
@@ -58,11 +57,11 @@ impl<'a> Hittable for Sphere<'a> {
 }
 
 pub struct SphereList<'m> {
-	pub list: Vec<&'m Sphere<'m>>,
+	pub list: Vec<Sphere<'m>>,
 }
 
 impl<'a> SphereList<'a> {
-	pub fn new(list: Vec<&'a Sphere<'a>>) -> SphereList<'a> {
+	pub fn new(list: Vec<Sphere<'a>>) -> SphereList<'a> {
 		SphereList { list }
 	}
 }

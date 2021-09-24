@@ -2,6 +2,7 @@ pub mod camera;
 pub mod hittable;
 pub mod materia;
 pub mod ray;
+pub mod scene;
 pub mod sphere;
 pub mod utils;
 pub mod vec3;
@@ -14,27 +15,35 @@ const MAX_REFLECTED_TIMES: u32 = 8;
 const MSAA_SAMPLES: u32 = 10;
 
 fn main() {
-	let camera = camera::new(RATIO, 2.0);
-
-	let materia_ground = materia::Lambertian::new(vec3::Vec3::new(0.8, 0.8, 0.0));
-	let materia_center = materia::Lambertian::new(vec3::Vec3::new(0.7, 0.3, 0.3));
-	let materia_left = materia::Dieletric::new(2.0);
-	let materia_right = materia::Metal::new(vec3::Vec3::new(0.8, 0.6, 0.2), 2.0);
-
-	let sphere_right = sphere::Sphere::new(vec3::Vec3::new(1.0, 0.0, -1.0), 0.5, &materia_right);
-	let sphere_left = sphere::Sphere::new(vec3::Vec3::new(-1.0, 0.0, -1.0), 0.5, &materia_left);
-	let sphere_center = sphere::Sphere::new(vec3::Vec3::new(0.0, 0.0, -1.0), 0.5, &materia_center);
-	let sphere_ground =
-		sphere::Sphere::new(vec3::Vec3::new(0.0, -100.5, -1.0), 100.0, &materia_ground);
-
-	let obj_list = sphere::SphereList::new(vec![
-		&sphere_ground,
-		&sphere_center,
-		&sphere_left,
-		&sphere_right,
-	]);
+	let camera = camera::Camera::new(
+		vec3::Vec3::new(0.0, 2.0, 1.0),
+		vec3::Vec3::new(0.0, 0.0, -2.0),
+		vec3::Vec3::new(0.0, 1.0, 0.0),
+		60.0,
+		RATIO,
+		2.0,
+		3.0,
+	);
 
 	let mut data: Vec<u32> = Vec::with_capacity(W as usize * H as usize * 3);
+
+	let mut l_list: Vec<materia::Lambertian> = Vec::new();
+	for _ in 0..25 {
+		l_list.push(materia::Lambertian::new(vec3::Vec3::rand(0.0, 1.0)));
+	}
+	let mut m_list: Vec<materia::Metal> = Vec::new();
+	for _ in 0..25 {
+		m_list.push(materia::Metal::new(
+			vec3::Vec3::rand(0.0, 1.0),
+			utils::random(0.0, 1.0),
+		));
+	}
+	let mut d_list: Vec<materia::Dieletric> = Vec::new();
+	for _ in 0..25 {
+		d_list.push(materia::Dieletric::new(utils::random(1.0, 2.0)));
+	}
+	let ground_mat: materia::Lambertian = materia::Lambertian::new(vec3::Vec3::new(0.7, 0.2, 0.5));
+	let list = scene::random_scene(&l_list, &m_list, &d_list, &ground_mat);
 
 	for ih in 0..H as u32 {
 		println!("{0:<.2}", (ih as f64 / H * 100.0));
@@ -42,12 +51,10 @@ fn main() {
 			let mut result_color = vec3::Vec3::zero();
 			//MSAA
 			for _ in 0..MSAA_SAMPLES {
-				let (x, y) = camera.transform(
-					(iw as f64 + utils::random_num::<f64>()) / W * camera.w,
-					((H - ih as f64) as f64 + utils::random_num::<f64>()) / H * camera.h,
-				);
-				let ray = ray::new(vec3::Vec3::new(0.0, 0.0, 0.0), vec3::Vec3::new(x, y, -1.0));
-				result_color = &result_color + &ray_color(&ray, &obj_list, MAX_REFLECTED_TIMES);
+				let s = (iw as f64 + utils::random_num::<f64>()) / (W - 1.0);
+				let t = ((H - ih as f64) + utils::random_num::<f64>()) / (H - 1.0);
+				let ray = camera.get_ray(s, t);
+				result_color = &result_color + &ray_color(&ray, &list, MAX_REFLECTED_TIMES);
 			}
 
 			result_color = &result_color / MSAA_SAMPLES as f64;

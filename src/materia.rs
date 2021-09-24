@@ -71,9 +71,24 @@ impl Dieletric {
 
 impl Materia for Dieletric {
 	fn scatter(&self, ray: &Ray, rec: &mut HitRecord) -> bool {
-		let refraction_ratio = if rec.front_face {1.0 / self.ir} else {self.ir};
-		let refracted = refract(&ray.direction.unit_vector(), &rec.normal, refraction_ratio);
-		rec.out = Ray::new(Vec3::copy(&rec.p), refracted);
+		let refraction_ratio = if rec.front_face {
+			1.0 / self.ir
+		} else {
+			self.ir
+		};
+		let unit_direction = ray.direction.unit_vector();
+
+		let cos_theta = dot(&(-1.0 * &ray.direction.unit_vector()), &rec.normal).min(1.0);
+		let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
+
+		let cannot_refract = refraction_ratio * sin_theta > 1.0;
+		let direction = if cannot_refract {
+			reflect(&unit_direction, &rec.normal)
+		} else {
+			refract(&unit_direction, &rec.normal, refraction_ratio)
+		};
+
+		rec.out = Ray::new(Vec3::copy(&rec.p), direction);
 		rec.albedo = new_vec3![1.0];
 		return true;
 	}
