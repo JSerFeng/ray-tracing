@@ -1,8 +1,9 @@
 use super::{
 	hittable::HitRecord,
+	new_vec3,
 	ray::Ray,
 	utils,
-	vec3::{dot, reflect, Vec3},
+	vec3::{dot, reflect, refract, Vec3},
 };
 
 pub trait Materia {
@@ -36,20 +37,44 @@ impl Materia for Lambertian {
 
 pub struct Metal {
 	albedo: Vec3,
+	fuzz: f64,
 }
 
 impl Metal {
-	pub fn new(albedo: Vec3) -> Metal {
-		Metal { albedo }
+	pub fn new(albedo: Vec3, fuzz: f64) -> Metal {
+		Metal { albedo, fuzz }
 	}
 }
 
 impl Materia for Metal {
 	fn scatter(&self, ray: &Ray, rec: &mut HitRecord) -> bool {
-		let reflected = reflect(&ray.direction, &rec.normal);
-		let ray_out = Ray::new(Vec3::copy(&rec.p), Vec3::copy(&reflected));
+		let reflected = reflect(&ray.direction.unit_vector(), &rec.normal);
+		let ray_out = Ray::new(
+			Vec3::copy(&rec.p),
+			&reflected + &(self.fuzz * &utils::random_in_unit_sphere()),
+		);
 		rec.albedo = Vec3::copy(&self.albedo);
 		rec.out = ray_out;
-		return dot(&reflected, &rec.normal) > 0.0
+		return dot(&reflected, &rec.normal) > 0.0;
+	}
+}
+
+pub struct Dieletric {
+	ir: f64,
+}
+
+impl Dieletric {
+	pub fn new(ir: f64) -> Dieletric {
+		Dieletric { ir }
+	}
+}
+
+impl Materia for Dieletric {
+	fn scatter(&self, ray: &Ray, rec: &mut HitRecord) -> bool {
+		let refraction_ratio = if rec.front_face {1.0 / self.ir} else {self.ir};
+		let refracted = refract(&ray.direction.unit_vector(), &rec.normal, refraction_ratio);
+		rec.out = Ray::new(Vec3::copy(&rec.p), refracted);
+		rec.albedo = new_vec3![1.0];
+		return true;
 	}
 }

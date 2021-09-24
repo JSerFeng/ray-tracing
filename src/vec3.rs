@@ -69,17 +69,24 @@ impl Vec3 {
 }
 
 /**
- 	 r       
-		\  n	/|
-		 \ | / | a
-		  \|/	 |
- 		 ---------------
-				\	 |
-			 r \ | a
-				  \|
- */
+	 r
+	 \  n	/|
+		\ | / | a
+		 \|/	 |
+		 ---------------
+			 \	 |
+			r \ | a
+				 \|
+*/
 pub fn reflect(r: &Vec3, n: &Vec3) -> Vec3 {
 	return r - &(2.0 * &(dot(r, n) * n));
+}
+
+pub fn refract(uv: &Vec3, n: &Vec3, etai_over_etat: f64) -> Vec3 {
+	let cos_theta = dot(&(-1.0 * uv), n).min(1.0);
+	let r_out_perp = etai_over_etat * &(uv + &(cos_theta * n));
+	let r_out_parallel = -(1.0 - r_out_perp.len_square()).abs().sqrt() * n;
+	&r_out_perp + &r_out_parallel
 }
 
 pub fn dot(v1: &Vec3, v: &Vec3) -> f64 {

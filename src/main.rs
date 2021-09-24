@@ -10,7 +10,7 @@ use std::io::Write;
 const RATIO: f64 = 16.0 / 9.0;
 const H: f64 = 256.0;
 const W: f64 = RATIO * H;
-const MAX_REFLECTED_TIMES: u32 = 50;
+const MAX_REFLECTED_TIMES: u32 = 8;
 const MSAA_SAMPLES: u32 = 10;
 
 fn main() {
@@ -18,8 +18,8 @@ fn main() {
 
 	let materia_ground = materia::Lambertian::new(vec3::Vec3::new(0.8, 0.8, 0.0));
 	let materia_center = materia::Lambertian::new(vec3::Vec3::new(0.7, 0.3, 0.3));
-	let materia_left = materia::Metal::new(vec3::Vec3::new(0.8, 0.8, 0.8));
-	let materia_right = materia::Metal::new(vec3::Vec3::new(0.8, 0.6, 0.2));
+	let materia_left = materia::Dieletric::new(2.0);
+	let materia_right = materia::Metal::new(vec3::Vec3::new(0.8, 0.6, 0.2), 2.0);
 
 	let sphere_right = sphere::Sphere::new(vec3::Vec3::new(1.0, 0.0, -1.0), 0.5, &materia_right);
 	let sphere_left = sphere::Sphere::new(vec3::Vec3::new(-1.0, 0.0, -1.0), 0.5, &materia_left);
