@@ -42,3 +42,30 @@ pub fn random(l: f64, r: f64) -> f64 {
 pub fn random_num<T: rand::Rand>() -> T {
 	rand::random::<T>()
 }
+
+pub fn random_in_hemisphere(normal: &vec3::Vec3) -> vec3::Vec3 {
+	let v = random_in_unit_sphere();
+	if vec3::dot(normal, &v) > 0.0 {
+		return v;
+	} else {
+		return &v * -1.0;
+	}
+}
+
+pub fn random_unit_vector() -> vec3::Vec3 {
+	random_in_unit_sphere().unit_vector()
+}
+
+pub fn random_in_unit_sphere() -> vec3::Vec3 {
+	loop {
+		let v = vec3::Vec3::rand(-1.0, 1.0);
+		if v.len_square() < 1.0 {
+			return v;
+		}
+		continue;
+	}
+}
+
+pub fn near_zero(v: &vec3::Vec3) -> bool {
+	return v.x() < 1e-8 && v.y() < 1e-8 && v.z() < 1e-8;
+}

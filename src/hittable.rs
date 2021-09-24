@@ -7,7 +7,9 @@ pub struct HitRecord {
 	pub t: f64,
 	pub p: Vec3,
 	pub normal: Vec3,
+	pub albedo: Vec3,
 	pub front_face: bool,
+	pub out: ray::Ray,
 }
 
 impl HitRecord {
@@ -17,6 +19,8 @@ impl HitRecord {
 			t: std::f64::MAX,
 			p: Vec3::zero(),
 			normal: Vec3::zero(),
+			albedo: Vec3::zero(),
+			out: ray::Ray::new(Vec3::zero(), Vec3::zero()),
 		}
 	}
 

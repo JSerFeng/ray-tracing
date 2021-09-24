@@ -3,15 +3,20 @@ use std::ops;
 
 #[macro_export]
 macro_rules! new_vec3 {
-	() => {Vec3::new(0.0, 0.0, 0.0)};
-	($ele: expr) => {Vec3::new($ele, $ele, $ele)};
-	($ele1: expr, $ele2: expr, $ele3: expr) => {Vec3::new($ele1, $ele2, $ele3)};
+	() => {
+		Vec3::new(0.0, 0.0, 0.0)
+	};
+	($ele: expr) => {
+		Vec3::new($ele, $ele, $ele)
+	};
+	($ele1: expr, $ele2: expr, $ele3: expr) => {
+		Vec3::new($ele1, $ele2, $ele3)
+	};
 }
 
 pub struct Vec3 {
 	value: [f64; 3],
 }
-
 
 impl Vec3 {
 	pub fn new(x: f64, y: f64, z: f64) -> Vec3 {
@@ -30,16 +35,6 @@ impl Vec3 {
 		)
 	}
 
-	pub fn rand_unit_vec() -> Vec3 {
-		loop {
-			let v = Vec3::rand(-1.0, 1.0);
-			if v.len_square() < 1.0 {
-				return v;
-			}
-			continue;
-		}
-	}
-
 	pub fn copy(v: &Vec3) -> Vec3 {
 		Vec3::new(v.x(), v.y(), v.z())
 	}
@@ -51,9 +46,11 @@ impl Vec3 {
 	pub fn x(&self) -> f64 {
 		self.value[0]
 	}
+
 	pub fn y(&self) -> f64 {
 		self.value[1]
 	}
+
 	pub fn z(&self) -> f64 {
 		self.value[2]
 	}
@@ -69,6 +66,20 @@ impl Vec3 {
 	pub fn unit_vector(&self) -> Vec3 {
 		self / self.len()
 	}
+}
+
+/**
+ 	 r       
+		\  n	/|
+		 \ | / | a
+		  \|/	 |
+ 		 ---------------
+				\	 |
+			 r \ | a
+				  \|
+ */
+pub fn reflect(r: &Vec3, n: &Vec3) -> Vec3 {
+	return r - &(2.0 * &(dot(r, n) * n));
 }
 
 pub fn dot(v1: &Vec3, v: &Vec3) -> f64 {

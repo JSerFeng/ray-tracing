@@ -1,36 +1,33 @@
 use super::{
 	hittable::{HitRecord, Hittable},
-	ray,
+	materia, ray,
 	vec3::{dot, Vec3},
 };
 
 /**
  * (x - a)^2 + (y - b)^2 + (z - c)^2 = r^2
  */
-pub struct Sphere {
+pub struct Sphere<'m> {
 	center: Vec3,
 	radius: f64,
+	pub materia: &'m dyn materia::Materia,
 }
 
-impl Sphere {
-	pub fn new(center: Vec3, radius: f64) -> Sphere {
-		Sphere { center, radius }
+impl<'a> Sphere<'a> {
+	pub fn new(center: Vec3, radius: f64, materia: &dyn materia::Materia) -> Sphere {
+		Sphere {
+			center,
+			radius,
+			materia,
+		}
 	}
 }
 
 #[allow(non_snake_case)]
-impl Hittable for Sphere {
+impl<'a> Hittable for Sphere<'a> {
 	fn hit(&self, ray: &ray::Ray, t_min: f64, t_max: f64, rec: &mut HitRecord) -> bool {
-		// A: ray.origin  B: ray.direction  C: center  r: radius
-		// 公式: (A + t(未知) * B - C)^2 = r ^ 2
-		// t^2 B⋅B+ t * 2B⋅(A−C)+(A−C)^2−r^2=0
-
 		let r = self.radius;
 		let oc = &(&ray.origin - &self.center);
-		// let a = dot(B, B);
-		// let b = 2.0 * dot(B, A_C);
-		// let c = dot(A_C, A_C) - r * r;
-		// more efficient is as following
 		let a = ray.direction.len_square();
 		let half_b = dot(oc, &ray.direction);
 		let c = oc.len_square() - r * r;
@@ -51,21 +48,26 @@ impl Hittable for Sphere {
 		rec.set_front_face(ray, &(&attachment - &self.center).unit_vector());
 		rec.p = attachment;
 
-		return rec.front_face;
+		let scatted = self.materia.scatter(ray, rec);
+		if !scatted {
+			rec.albedo = Vec3::zero();
+		}
+
+		return true;
 	}
 }
 
-pub struct SphereList<'a> {
-	pub list: Vec<&'a Sphere>,
+pub struct SphereList<'m> {
+	pub list: Vec<&'m Sphere<'m>>,
 }
 
 impl<'a> SphereList<'a> {
-	pub fn new(list: Vec<&'a Sphere>) -> SphereList {
+	pub fn new(list: Vec<&'a Sphere<'a>>) -> SphereList<'a> {
 		SphereList { list }
 	}
 }
 
-impl Hittable for SphereList<'_> {
+impl<'a> Hittable for SphereList<'a> {
 	fn hit(&self, ray: &ray::Ray, t_min: f64, t_max: f64, rec: &mut HitRecord) -> bool {
 		let mut has_hit = false;
 		let mut tmp_rec = HitRecord::new();
@@ -73,6 +75,7 @@ impl Hittable for SphereList<'_> {
 		for item in self.list.iter() {
 			if item.hit(ray, t_min, tmp_t_max, &mut tmp_rec) {
 				tmp_t_max = tmp_rec.t;
+				item.materia.scatter(ray, &mut tmp_rec);
 				has_hit = true;
 			}
 		}
