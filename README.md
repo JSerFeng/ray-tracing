@@ -1,3 +1,2 @@
 # ray-tracing
-learn ray-tracing with rust lang
-WIP...
+learn rust with ray tracing.
